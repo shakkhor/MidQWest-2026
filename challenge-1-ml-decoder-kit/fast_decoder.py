@@ -79,14 +79,19 @@ class TieredDecoder:
 
     def decode(self, syndrome):
         result = self.first_leg.decode_detailed(syndrome)
+        self.last_iterations = result.iterations
         if result.success:
             self.stages[0] += 1
+            self.last_stage = 1
             return result.decoding
         result = self.first_solution.decode_detailed(syndrome)
+        self.last_iterations = result.iterations
         if self.router is None or not self.router.distrust(features(syndrome, result, self.llr)):
             self.stages[1] += 1
+            self.last_stage = 2
             return result.decoding
         self.stages[2] += 1
+        self.last_stage = 3
         other = np.asarray(self.more_solutions.decode(syndrome), bool)
         mine = np.asarray(result.decoding, bool)
         # Keep the more likely of the two candidates (lower total LLR weight).

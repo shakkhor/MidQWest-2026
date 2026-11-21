@@ -1,0 +1,6 @@
+10000 shots at p=0.003, 12 cycles, failures listed as [X Z]
+relay-bp   failures [3 2] of 10000  per cycle 4.17e-05 +- 1.9e-05  mean 63.1 ms  p99 446 ms
+tiered-fast failures [6 4] of 10000  per cycle 8.34e-05 +- 2.6e-05  mean 14.4 ms  p99 129 ms
+           decodes ended at stage 1/2/3: 96.7% / 3.3% / 0.0%
+tiered-ml  failures [5 3] of 10000  per cycle 6.67e-05 +- 2.4e-05  mean 21.7 ms  p99 191 ms
+           decodes ended at stage 1/2/3: 96.7% / 2.7% / 0.6%

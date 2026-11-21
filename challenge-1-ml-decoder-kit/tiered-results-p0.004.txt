@@ -1,0 +1,8 @@
+1627 hard shots, 129 where the first solution disagrees with relay-BP
+router flags 64.2% of hard shots, catches 94.6% of disagreements
+saved router.npz
+10000 shots at p=0.004, 12 cycles, failures listed as [X Z]
+tiered-fast failures [64 61] of 10000  per cycle 1.05e-03 +- 9.4e-05  mean 82.1 ms  p99 1492 ms
+           decodes ended at stage 1/2/3: 85.8% / 14.2% / 0.0%
+tiered-ml  failures [58 47] of 10000  per cycle 8.79e-04 +- 8.6e-05  mean 194.1 ms  p99 4964 ms
+           decodes ended at stage 1/2/3: 85.8% / 7.7% / 6.5%

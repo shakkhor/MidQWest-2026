@@ -2,3 +2,6 @@
 .idea/
 __pycache__/
 .venv/
+challenge-1-ml-decoder-kit/shots/
+challenge-1-ml-decoder-kit/logs/
+.pytest_cache/

@@ -53,8 +53,13 @@ def summarize(log, cycles=CYCLES):
     return row
 
 
+def read_log(path):
+    """A per-shot log; observable bit strings stay strings (leading zeros kept)."""
+    return pd.read_csv(path, dtype={"pred_obs": str, "true_obs": str, "config": str})
+
+
 def main(paths):
-    rows = [summarize(pd.read_csv(path)) for path in paths]
+    rows = [summarize(read_log(path)) for path in paths]
     table = pd.DataFrame(rows)
     with pd.option_context("display.width", 200, "display.max_columns", 30, "display.float_format", "{:.4g}".format):
         print(table.to_string(index=False))

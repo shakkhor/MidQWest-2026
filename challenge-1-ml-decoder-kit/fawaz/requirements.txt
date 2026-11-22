@@ -1,0 +1,5 @@
+# The kit's requirements (../requirements.txt) plus:
+scikit-learn>=1.4   # the small TCBP-style network
+joblib              # saving the trained model
+matplotlib          # plots
+pytest

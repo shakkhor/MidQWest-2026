@@ -1,0 +1,42 @@
+
+=== p = 0.003: 20000 decodes (10000 shots x X and Z) ===
+First pass solves 96.7% of decodes (EASY); 3.3% need more work (HARD).
+
+EASY decodes (19334):
+  first pass:        0 wrong   mean    2.5 ms
+  full relay-BP:     0 wrong   mean   17.0 ms
+
+HARD decodes (666):  this is where a new decoder has to win
+  first pass alone:     521 wrong   mean   12.3 ms  (its answer doesn't explain the detectors)
+  full relay-BP:          8 wrong   mean  206.9 ms   p99   2812 ms
+  BP-OSD:                43 wrong   mean  178.1 ms   p99    342 ms
+
+Hard decodes are 3% of decodes but 30% of relay-BP's total time and 8/8 of its mistakes.
+
+=== p = 0.004: 20000 decodes (10000 shots x X and Z) ===
+First pass solves 85.8% of decodes (EASY); 14.2% need more work (HARD).
+
+EASY decodes (17152):
+  first pass:        8 wrong   mean    3.4 ms
+  full relay-BP:     3 wrong   mean   33.0 ms
+
+HARD decodes (2848):  this is where a new decoder has to win
+  first pass alone:    2408 wrong   mean   11.7 ms  (its answer doesn't explain the detectors)
+  full relay-BP:        100 wrong   mean  439.3 ms   p99   3174 ms
+  BP-OSD:               427 wrong   mean  206.3 ms   p99    368 ms
+
+Hard decodes are 14% of decodes but 69% of relay-BP's total time and 100/103 of its mistakes.
+
+=== p = 0.005: 20000 decodes (10000 shots x X and Z) ===
+First pass solves 64.3% of decodes (EASY); 35.7% need more work (HARD).
+
+EASY decodes (12862):
+  first pass:       26 wrong   mean    4.7 ms
+  full relay-BP:    24 wrong   mean   72.8 ms
+
+HARD decodes (7138):  this is where a new decoder has to win
+  first pass alone:    6485 wrong   mean   12.1 ms  (its answer doesn't explain the detectors)
+  full relay-BP:        785 wrong   mean 1015.3 ms   p99   3311 ms
+  BP-OSD:              2272 wrong   mean  242.5 ms   p99    425 ms
+
+Hard decodes are 36% of decodes but 89% of relay-BP's total time and 785/809 of its mistakes.

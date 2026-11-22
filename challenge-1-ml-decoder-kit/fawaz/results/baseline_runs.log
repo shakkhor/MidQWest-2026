@@ -1,0 +1,12 @@
+10000 shots at p=0.003, seed 1, failures listed as [X Z]
+bposd      failures [36 23] of 10000  per cycle 4.93e-04 +- 6.4e-05  mean 74.5 ms  p99 495 ms
+relay-bp   failures [4 4] of 10000  per cycle 6.67e-05 +- 2.4e-05  mean 46.6 ms  p99 297 ms
+saved /Users/fawazbello/Desktop/InfleqtionHackathon/MidQWest-2026/challenge-1-ml-decoder-kit/results/baseline_p0.003.npz
+10000 shots at p=0.004, seed 1, failures listed as [X Z]
+bposd      failures [266 267] of 10000  per cycle 4.50e-03 +- 2.0e-04  mean 189.6 ms  p99 580 ms
+relay-bp   failures [58 45] of 10000  per cycle 8.62e-04 +- 8.5e-05  mean 181.6 ms  p99 3036 ms
+saved /Users/fawazbello/Desktop/InfleqtionHackathon/MidQWest-2026/challenge-1-ml-decoder-kit/results/baseline_p0.004.npz
+10000 shots at p=0.005, seed 1, failures listed as [X Z]
+bposd      failures [1310 1344] of 10000  per cycle 2.36e-02 +- 4.7e-04  mean 341.6 ms  p99 673 ms
+relay-bp   failures [407 402] of 10000  per cycle 6.88e-03 +- 2.4e-04  mean 818.3 ms  p99 4556 ms
+saved /Users/fawazbello/Desktop/InfleqtionHackathon/MidQWest-2026/challenge-1-ml-decoder-kit/results/baseline_p0.005.npz

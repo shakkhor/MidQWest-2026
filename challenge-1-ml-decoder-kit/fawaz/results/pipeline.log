@@ -1,0 +1,33 @@
+p=0.003: 666 hard decodes x 5 fallbacks in 44s
+
+=== p = 0.003: 10000 X+Z pairs ===
+  decoder                          pair fails       per-cycle rate  mean ms  median  p99 ms
+  BP-OSD (baseline)                        59    4.93e-04 +- 6.4e-05     74.5    10.2     495
+  relay-BP (baseline)                       8    6.67e-05 +- 2.4e-05     46.6    29.5     297
+  first pass + BP-OSD                      43    3.59e-04 +- 5.5e-05     17.6     4.5     284
+  first pass + relay-BP                     6    5.00e-05 +- 2.0e-05     18.6     4.5     280
+  first pass + ML 16 orderings             38    3.17e-04 +- 5.1e-05     16.2     4.5     232
+  first pass + ML 4 + relay-BP             19    1.58e-04 +- 3.6e-05     16.0     4.5     213
+  first pass + ML 16 + relay-BP             8    6.67e-05 +- 2.4e-05     24.5     4.5     446
+p=0.004: 2848 hard decodes x 5 fallbacks in 268s
+
+=== p = 0.004: 10000 X+Z pairs ===
+  decoder                          pair fails       per-cycle rate  mean ms  median  p99 ms
+  BP-OSD (baseline)                       527    4.50e-03 +- 2.0e-04    189.6   204.6     580
+  relay-BP (baseline)                     103    8.62e-04 +- 8.5e-05    181.6    60.9    3036
+  first pass + BP-OSD                     431    3.66e-03 +- 1.8e-04     69.7     7.4     478
+  first pass + relay-BP                   115    9.63e-04 +- 9.0e-05    128.5     7.4    2849
+  first pass + ML 16 orderings            302    2.55e-03 +- 1.5e-04     82.3     7.4     984
+  first pass + ML 4 + relay-BP            141    1.18e-03 +- 1.0e-04    115.2     7.4    2943
+  first pass + ML 16 + relay-BP           115    9.63e-04 +- 9.0e-05    179.2     7.4    3178
+p=0.005: 7138 hard decodes x 5 fallbacks in 1200s
+
+=== p = 0.005: 10000 X+Z pairs ===
+  decoder                          pair fails       per-cycle rate  mean ms  median  p99 ms
+  BP-OSD (baseline)                      2488    2.36e-02 +- 4.7e-04    341.6   329.4     673
+  relay-BP (baseline)                     795    6.88e-03 +- 2.4e-04    818.3   226.9    4556
+  first pass + BP-OSD                    2178    2.03e-02 +- 4.3e-04    194.3   222.7     674
+  first pass + relay-BP                   840    7.28e-03 +- 2.5e-04    693.6   118.7    4079
+  first pass + ML 16 orderings           1578    1.42e-02 +- 3.6e-04    314.4   169.0    2105
+  first pass + ML 4 + relay-BP            892    7.76e-03 +- 2.6e-04    660.4    78.4    4224
+  first pass + ML 16 + relay-BP           845    7.33e-03 +- 2.5e-04    945.0   196.1    5520

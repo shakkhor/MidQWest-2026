@@ -28,6 +28,14 @@ We ran **NVIDIA's own TCBP-JOBS** (CUDA-Q QEC 0.9.0, `nv-qldpc-decoder`, preset 
 * Because the re-implementation is validated, our **loss-aware result is a result against NVIDIA's method**:
   1.3–1.9× fewer errors under heralded loss, which their decoder cannot use.
 
+**Evidence** (`challenge-1-ml-decoder-kit/kaggle/evidence/`):
+- `nvidia_tcbpjobs_kaggle_run.ipynb`: the Kaggle notebook with its printed output (CUDA-Q QEC 0.9.0, preset
+  `tcbp-jobs`, all corrections valid, 41 vs 41 failed pairs).
+- `nvidia_tcbpjobs_p0.004.npz`: NVIDIA's pass/fail for every one of the 10,000 shots per basis, plus latencies.
+- `verify_nvidia.py`: re-checks the comparison locally in seconds, no GPU needed:
+  `cd challenge-1-ml-decoder-kit && python kaggle/evidence/verify_nvidia.py`
+- The shots themselves: `kaggle/gross_p0.004_shots.npz`. The script that ran on Kaggle: `kaggle/nvidia_tcbpjobs_kaggle.py`.
+
 ---
 
 ## What the decoder is

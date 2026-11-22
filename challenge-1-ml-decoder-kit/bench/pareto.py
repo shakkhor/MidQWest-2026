@@ -30,10 +30,10 @@ def replay(log, threshold, name, config):
     return out
 
 
-def table(p, router_path, recalls, seed=1):
+def table(p, router_path, recalls, seed=1, workers=4):
     from fast_decoder import Router
     rows = []
-    for path in sorted(LOG_DIR.glob(f"*_p{p}_seed{seed}_*.csv")):
+    for path in sorted(LOG_DIR.glob(f"*_p{p}_seed{seed}_n*_w{workers}.csv")):
         log = read_log(path)
         if log.decoder.iloc[0] != "tiered-all":
             rows.append(summarize(log))
@@ -75,9 +75,10 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--p", type=float, required=True)
     parser.add_argument("--router", default="router.npz")
+    parser.add_argument("--workers", type=int, default=4, help="use only logs timed with this many workers")
     parser.add_argument("--recall", type=float, nargs="+", default=[0.8, 0.9, 0.95, 0.99])
     args = parser.parse_args()
-    df = table(args.p, args.router, args.recall)
+    df = table(args.p, args.router, args.recall, workers=args.workers)
     RESULTS.mkdir(exist_ok=True)
     df.to_csv(RESULTS / f"pareto_p{args.p}.csv", index=False)
     plot(df, args.p, RESULTS / f"pareto_p{args.p}.png")

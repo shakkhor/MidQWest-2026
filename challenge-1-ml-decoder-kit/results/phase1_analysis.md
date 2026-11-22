@@ -1,5 +1,24 @@
 # Phase 1 analysis: relay-BP's own trade-off curve vs. the tiered decoder
 
+## Summary in plain words
+
+We asked whether a learned "how hard is this shot?" router can make relay-BP faster at the
+same accuracy than *any* fixed relay-BP setting can. **With the current router, no.** Simply
+telling relay-BP to stop after 2 solutions instead of 5 is as accurate and about 2× faster,
+and our router does not beat that.
+
+The approach is not dead, though. A *perfect* router would be about 3× faster than every
+relay-BP setting **and** more accurate. The router is the weak link: it has to find about 1 shot
+in 40 among the hard ones, and its current features cannot. That is what we work on next
+(Option A).
+
+![p=0.004](pareto_p0.004.png)
+![p=0.005](pareto_p0.005.png)
+
+*Blue: relay-BP at 6 fixed settings. Orange: tiered-fast. Red: tiered-ml at 4 router thresholds.
+Lower is more accurate, further left is faster. Left panel: mean time. Right panel: p99 time.
+Error bars: 95% Wilson intervals.*
+
 Setup:
 - Identical cached shots (seed 1). p=0.004: 10,000 per basis. p=0.005: first 3,000 per basis.
 - Apple M4, 4 workers, one thread per shot, timing covers the `decode()` call only.

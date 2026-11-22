@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.venv/
+.DS_Store
+.pytest_cache/
+challenge-1-ml-decoder-kit.zip

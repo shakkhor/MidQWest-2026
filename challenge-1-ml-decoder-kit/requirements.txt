@@ -3,3 +3,8 @@ ldpc>=2.4
 numpy
 scipy
 relay-bp==0.2.2   # source build on most platforms: needs a Rust toolchain
+# TCBP-JOBS decoder
+numba>=0.60
+torch>=2.2        # only to train the 529-weight TCBP model; decoding is NumPy/numba
+matplotlib        # plots in analyze.py
+pytest

@@ -1,0 +1,5 @@
+300 pairs at p=0.004 (the first 300 shots of the sweep), one decoder at a time, numba threads 12
+two-stage  mean    18.5 ms  median    14.4 ms  p90    24.7 ms  p99      98 ms  max     230 ms
+tcbp-jobs  mean    41.6 ms  median    31.0 ms  p90    77.0 ms  p99     180 ms  max     300 ms
+relay-bp   mean   120.2 ms  median    42.1 ms  p90   212.7 ms  p99    1404 ms  max    2335 ms
+bposd      mean   146.9 ms  median   163.2 ms  p90   349.6 ms  p99     452 ms  max     570 ms

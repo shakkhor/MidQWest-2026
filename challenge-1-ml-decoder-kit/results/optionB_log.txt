@@ -1,0 +1,33 @@
+abel-two-stage_default_p0.004_seed1_n10000_w4.csv: failures [22 20] of 10000  per cycle 0.000351 [0.000259, 0.000474]  mean 34.6 ms  p99 445 ms
+abel-tcbp-jobs_default_p0.004_seed1_n10000_w4.csv: failures [22 19] of 10000  per cycle 0.000342 [0.000252, 0.000464]  mean 156.1 ms  p99 913 ms
+       decoder                    config  pairs  fail_X  fail_Z      rate   rate_lo   rate_hi  mean_ms  median_ms  p99_ms  p999_ms  stage1  stage2  stage3
+abel-tcbp-jobs                   default  10000      22      19 0.0003423 0.0002523 0.0004643    156.1      92.49   912.9     1642     NaN     NaN     NaN
+abel-two-stage                   default  10000      22      20 0.0003507 0.0002594 0.0004739    34.57       15.8   444.7     1010     NaN     NaN     NaN
+         bposd                   default  10000     266     267  0.004501  0.004134  0.004901    203.3      221.6   613.1    710.2     NaN     NaN     NaN
+         relay stop_nconv=1,num_sets=300  10000      75      61   0.00114 0.0009642  0.001349    57.85      9.202    1169     3418     NaN     NaN     NaN
+         relay  stop_nconv=1,num_sets=50  10000     109     110  0.001844  0.001615  0.002104    38.86      9.544   582.8    672.5     NaN     NaN     NaN
+         relay stop_nconv=2,num_sets=300  10000      62      54 0.0009718 0.0008103  0.001165    102.9      24.03    2095     3623     NaN     NaN     NaN
+         relay  stop_nconv=2,num_sets=50  10000      95     122  0.001818  0.001591  0.002077    68.49      24.59   622.8    869.1     NaN     NaN     NaN
+         relay stop_nconv=5,num_sets=300  10000      59      41 0.0008372 0.0006884  0.001018    211.9       70.7    3586     3826     NaN     NaN     NaN
+         relay  stop_nconv=5,num_sets=50  10000     113     104   0.00181  0.001583  0.002068    144.3      74.61   738.9     1206     NaN     NaN     NaN
+   tiered-fast                 no router  10000      72      68  0.001166 0.0009874  0.001376    59.31      8.832    1031     3291  0.8582  0.1418       0
+     tiered-ml                recall=0.8  10000      72      64   0.00114 0.0009642  0.001349    106.9      8.832    3564     6457  0.8582  0.1283  0.0135
+     tiered-ml                recall=0.9  10000      68      58  0.001056 0.0008871  0.001257    135.4      8.832    3706     6457  0.8582  0.1057 0.03605
+     tiered-ml               recall=0.95  10000      61      55 0.0009718 0.0008103  0.001165    151.9      8.832    3736     6579  0.8582 0.07555 0.06625
+     tiered-ml               recall=0.99  10000      56      53 0.0009129 0.0007568  0.001101    159.9      8.832    3746     6579  0.8582  0.0539  0.0879
+abel-two-stage_default_p0.005_seed1_n3000_w4.csv: failures [49 59] of 3000  per cycle 0.00302 [0.0025, 0.00365]  mean 143.5 ms  p99 1253 ms
+abel-tcbp-jobs_default_p0.005_seed1_n3000_w4.csv: failures [44 56] of 3000  per cycle 0.00276 [0.00227, 0.00337]  mean 399.1 ms  p99 1676 ms
+       decoder                    config  pairs  fail_X  fail_Z     rate  rate_lo  rate_hi  mean_ms  median_ms  p99_ms   p999_ms  stage1  stage2  stage3
+abel-tcbp-jobs                   default   3000      44      56 0.002764 0.002268 0.003366    399.1      285.6    1676      2960     NaN     NaN     NaN
+abel-two-stage                   default   3000      49      59 0.003022 0.002501 0.003649    143.5      27.25    1253      2293     NaN     NaN     NaN
+         relay stop_nconv=1,num_sets=300   3000     151     123 0.007798 0.006921  0.00878    390.7      38.95    3764      6212     NaN     NaN     NaN
+         relay  stop_nconv=1,num_sets=50   3000     246     245  0.01423  0.01301  0.01555    166.3      37.64   897.4      1250     NaN     NaN     NaN
+         relay stop_nconv=2,num_sets=300   3000     127     124 0.007044 0.006215 0.007979    587.1         99    3969      7453     NaN     NaN     NaN
+         relay  stop_nconv=2,num_sets=50   3000     255     240  0.01433   0.0131  0.01566    252.5      102.8    1191      1407     NaN     NaN     NaN
+         relay stop_nconv=5,num_sets=300   3000     126     126 0.007195 0.006355 0.008139    991.9      288.3    5353      7893     NaN     NaN     NaN
+         relay  stop_nconv=5,num_sets=50   3000     233     232  0.01329  0.01211  0.01457    408.9      288.7    1322      1353     NaN     NaN     NaN
+   tiered-fast                 no router   3000     141     137 0.007919 0.007035 0.008909    379.6      51.64    3567      6753  0.6382  0.3618       0
+     tiered-ml                recall=0.8   3000     134     132 0.007526 0.006666 0.008491    895.1      51.64    7090 1.356e+04  0.6382   0.243  0.1188
+     tiered-ml                recall=0.9   3000     134     132 0.007526 0.006666 0.008491     1000      51.69    7173 1.356e+04  0.6382  0.1618     0.2
+     tiered-ml               recall=0.95   3000     129     129 0.007285  0.00644 0.008235     1054      59.29    7230 1.356e+04  0.6382 0.08833  0.2735
+     tiered-ml               recall=0.99   3000     127     129 0.007225 0.006383 0.008171     1075      144.8    7252 1.356e+04  0.6382 0.04383   0.318

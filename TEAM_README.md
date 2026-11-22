@@ -1,5 +1,16 @@
 # Team README: Challenge 1, learned per-shot compute for relay-BP
 
+> **Latest (Option B):** Abel's two-stage TCBP-JOBS decoder was timed in this harness:
+> single thread, same shots as relay-BP's whole trade-off curve. It **beats every relay-BP
+> setting on accuracy and speed**:
+> - p=0.004: 3.5e-4 at 35 ms, vs. relay-BP's default 8.4e-4 at 212 ms;
+> - p=0.005: 3.0e-3 at 144 ms, vs. relay-BP's best 7.0e-3 at 587 ms.
+>
+> See [`results/optionB_analysis.md`](challenge-1-ml-decoder-kit/results/optionB_analysis.md).
+> Our tiered relay-BP router (below, and
+> [`results/optionA_analysis.md`](challenge-1-ml-decoder-kit/results/optionA_analysis.md)) is
+> a supporting negative result.
+
 Status as of Saturday evening. This is the place to catch up: what we built, what we
 found, and what comes next. Branch: `develop/abdullah`.
 

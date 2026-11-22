@@ -25,7 +25,7 @@ from circuit import GROSS_CIRCUITS, dem_matrices, load_circuit
 from decoders import bposd_decoder, relay_decoder
 
 LOG_DIR = Path(__file__).resolve().parent.parent / "logs"
-DECODERS = ["relay", "bposd", "tiered-fast", "tiered-ml", "tiered-all"]
+DECODERS = ["relay", "bposd", "tiered-fast", "tiered-ml", "tiered-all", "abel-two-stage", "abel-tcbp-jobs"]
 
 
 def parse_config(text):
@@ -36,6 +36,29 @@ def parse_config(text):
         number = float(value)
         config[key.strip()] = int(number) if number.is_integer() and "." not in value else number
     return config
+
+
+def abel_decoder(name, H, L, priors, syndrome0):
+    """The team's TCBP-JOBS decoders (branch develop/Abel), imported unchanged from a checkout of
+    that branch given by the ABEL_KIT environment variable (its challenge-1-ml-decoder-kit dir).
+    Warmed up on one syndrome so numba compilation is not timed. Two-stage uses tau=15, as
+    Abel's timing.py does."""
+    import sys
+    # torch bundles its own libomp; numba's OpenMP layer then aborts (duplicate OpenMP runtime).
+    # The workqueue layer avoids OpenMP. One thread per shot unless NUMBA_NUM_THREADS is set.
+    os.environ.setdefault("NUMBA_THREADING_LAYER", "workqueue")
+    os.environ.setdefault("NUMBA_NUM_THREADS", "1")
+    kit = os.environ["ABEL_KIT"]
+    if kit not in sys.path:
+        sys.path.append(kit)   # appended: our circuit/decoders modules keep priority
+    from decoder import TcbpJobsDecoder, TwoStageDecoder
+    model = os.path.join(kit, "tcbp_model.npz")
+    if name == "abel-two-stage":
+        dec = TwoStageDecoder(H, L, priors, model_path=model, tau=15.0)
+    else:
+        dec = TcbpJobsDecoder(H, L, priors, model_path=model)
+    dec.decode(syndrome0)
+    return dec
 
 
 def make_decoder(name, H, priors, config, router):
@@ -59,6 +82,8 @@ def decode_one(decoder, name, syndrome):
     seconds = time.perf_counter() - start
     if name == "bposd":
         return np.asarray(error, np.uint8), seconds, np.nan, decoder.iter
+    if name.startswith("abel-"):
+        return np.asarray(error, np.uint8), seconds, np.nan, np.nan
     return np.asarray(error, np.uint8), seconds, decoder.last_stage, decoder.last_iterations
 
 
@@ -116,7 +141,10 @@ def run_worker(job):
             part = tiered_all_rows(H, L, priors, llr, det, obs, range(k, len(det), workers), router)
             rows += [row | {"basis": basis} for row in part]
             continue
-        decoder = make_decoder(name, H, priors, config, router)
+        if name.startswith("abel-"):
+            decoder = abel_decoder(name, H, L, priors, det[0])
+        else:
+            decoder = make_decoder(name, H, priors, config, router)
         for shot in range(k, len(det), workers):
             error, seconds, stage, iterations = decode_one(decoder, name, det[shot])
             predicted = (L @ error) % 2

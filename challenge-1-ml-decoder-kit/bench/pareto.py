@@ -51,7 +51,7 @@ def plot(df, p, out):
     import matplotlib.pyplot as plt
     fig, axes = plt.subplots(1, 2, figsize=(11, 4.2), sharey=True)
     styles = {"relay": ("o", "#4C78A8"), "bposd": ("s", "#9D9D9D"), "tiered-fast": ("^", "#F58518"),
-              "tiered-ml": ("D", "#E45756")}
+              "tiered-ml": ("D", "#E45756"), "abel-two-stage": ("*", "#54A24B"), "abel-tcbp-jobs": ("P", "#2E7D32")}
     for ax, col, label in ((axes[0], "mean_us_per_cycle", "mean"), (axes[1], "p99_ms", "p99")):
         for name, group in df.groupby("decoder"):
             marker, color = styles.get(name, ("x", "black"))

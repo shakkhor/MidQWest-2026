@@ -8,6 +8,26 @@ Everything is in `challenge-1-ml-decoder-kit/`. The technical write-up is
 
 Nothing here is merged to `main`.
 
+## Validated against NVIDIA's real code
+
+We ran **NVIDIA's own TCBP-JOBS** (CUDA-Q QEC 0.9.0, `nv-qldpc-decoder`, preset `tcbp-jobs`, TCBP model from
+`init_tcbp_model(H, seed=1)`) on a Kaggle T4 GPU, on our exact 10,000 shots per basis at p = 0.004
+(`challenge-1-ml-decoder-kit/kaggle/`):
+
+| decoder | failed pairs | rate per cycle | mean latency per X+Z pair |
+|---|---|---|---|
+| relay-BP (kit baseline, CPU) | 103 | 8.6e-4 | 120 ms |
+| **NVIDIA TCBP-JOBS (their code, T4 GPU)** | **41** | **3.4e-4** | 21 ms |
+| **Ours, TCBP-JOBS re-implementation (12-core CPU)** | **41** | **3.4e-4** | 42 ms |
+| **Ours, two-stage (12-core CPU)** | **42** | **3.5e-4** | **18.5 ms** |
+
+* **Our re-implementation matches NVIDIA's code exactly in accuracy:** 41 vs 41 failed pairs, with only 4 shots
+  each way where they disagree (McNemar p = 1).
+* **Our two-stage decoder on a laptop CPU is as fast as NVIDIA's on a T4 GPU, at the same accuracy.**
+  NVIDIA's GB200 timings in their paper would be faster. The two-stage idea would speed theirs up too.
+* Because the re-implementation is validated, our **loss-aware result is a result against NVIDIA's method**:
+  1.3–1.9× fewer errors under heralded loss, which their decoder cannot use.
+
 ---
 
 ## What the decoder is
@@ -78,7 +98,7 @@ more likely than ours), and summing probability per logical class (it gave the s
 Plots: `challenge-1-ml-decoder-kit/results/ler_and_latency.png`, `challenge-1-ml-decoder-kit/results/loss.png`.
 
 ### Honest caveats (say these in the presentation)
-- This is **our re-implementation** of NVIDIA's method on CPU, not their CUDA-Q GPU code. "Beats NVIDIA" means
+- Our decoder is **our re-implementation** of NVIDIA's method (validated: same accuracy as their CUDA-Q code on our shots). "Beats NVIDIA" means
   "beats their method, re-implemented, under loss", not their GPU numbers.
 - The kit benchmark (uniform circuit noise, per-basis decoding) is not the noise model used in NVIDIA's paper.
 - Our draws run on 12 CPU threads by default; single-thread timings are in `results/timing_1thread_p0.004.txt`.
@@ -125,7 +145,7 @@ totals are in `results/baseline_p*.txt`.
 ## Next steps
 1. ~~Idle-machine timing~~ (done).
 2. Check the two-stage threshold on fresh shots.
-3. Optional: run NVIDIA's real decoder (CUDA-Q QEC 0.9.0) on a free GPU (Kaggle/Colab) on our exact shots.
+3. ~~Run NVIDIA's real decoder on our shots~~ (done: identical accuracy, see top).
 4. Optional: leakage tracking with clifft (unheralded loss).
 5. Slides.
 

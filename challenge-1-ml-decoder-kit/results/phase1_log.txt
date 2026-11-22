@@ -1,0 +1,44 @@
+rena1627 hard shots, 129 where the first solution disagrees with relay-BP
+router flags 64.2% of hard shots, catches 94.6% of disagreements
+saved router.npz
+relay_stop_nconv1_num_sets300_p0.004_seed1_n10000_w4.csv: failures [75 61] of 10000  per cycle 0.00114 [0.000964, 0.00135]  mean 57.8 ms  p99 1169 ms
+relay_stop_nconv1_num_sets50_p0.004_seed1_n10000_w4.csv: failures [109 110] of 10000  per cycle 0.00184 [0.00162, 0.0021]  mean 38.9 ms  p99 583 ms
+relay_stop_nconv2_num_sets300_p0.004_seed1_n10000_w4.csv: failures [62 54] of 10000  per cycle 0.000972 [0.00081, 0.00117]  mean 102.9 ms  p99 2095 ms
+relay_stop_nconv2_num_sets50_p0.004_seed1_n10000_w4.csv: failures [95 122] of 10000  per cycle 0.00182 [0.00159, 0.00208]  mean 68.5 ms  p99 623 ms
+relay_stop_nconv5_num_sets300_p0.004_seed1_n10000_w4.csv: failures [59 41] of 10000  per cycle 0.000837 [0.000688, 0.00102]  mean 211.9 ms  p99 3586 ms
+relay_stop_nconv5_num_sets50_p0.004_seed1_n10000_w4.csv: failures [113 104] of 10000  per cycle 0.00181 [0.00158, 0.00207]  mean 144.3 ms  p99 739 ms
+tiered-all_default_p0.004_seed1_n10000_w4.csv: failures [54 51] of 10000  per cycle 0.000879 [0.000726, 0.00106]  mean 172.9 ms  p99 3767 ms
+bposd_default_p0.004_seed1_n10000_w4.csv: failures [266 267] of 10000  per cycle 0.0045 [0.00413, 0.0049]  mean 203.3 ms  p99 613 ms
+    decoder                    config  pairs  fail_X  fail_Z      rate   rate_lo   rate_hi  mean_ms  median_ms  p99_ms  p999_ms  stage1  stage2  stage3
+      bposd                   default  10000     266     267  0.004501  0.004134  0.004901    203.3      221.6   613.1    710.2     NaN     NaN     NaN
+      bposd                   default  10000     266     267  0.004501  0.004134  0.004901    190.8      209.3   571.7    648.2     NaN     NaN     NaN
+      relay                   default  10000      51      40 0.0007615 0.0006203 0.0009347      208      69.69    3536     3857     NaN     NaN     NaN
+      relay stop_nconv=1,num_sets=300  10000      75      61   0.00114 0.0009642  0.001349    57.85      9.202    1169     3418     NaN     NaN     NaN
+      relay  stop_nconv=1,num_sets=50  10000     109     110  0.001844  0.001615  0.002104    38.86      9.544   582.8    672.5     NaN     NaN     NaN
+      relay stop_nconv=2,num_sets=300  10000      62      54 0.0009718 0.0008103  0.001165    102.9      24.03    2095     3623     NaN     NaN     NaN
+      relay  stop_nconv=2,num_sets=50  10000      95     122  0.001818  0.001591  0.002077    68.49      24.59   622.8    869.1     NaN     NaN     NaN
+      relay stop_nconv=5,num_sets=300  10000      59      41 0.0008372 0.0006884  0.001018    211.9       70.7    3586     3826     NaN     NaN     NaN
+      relay  stop_nconv=5,num_sets=50  10000     113     104   0.00181  0.001583  0.002068    144.3      74.61   738.9     1206     NaN     NaN     NaN
+tiered-fast                 no router  10000      72      68  0.001166 0.0009874  0.001376    59.31      8.832    1031     3291  0.8582  0.1418       0
+  tiered-ml                recall=0.8  10000      72      64   0.00114 0.0009642  0.001349    106.9      8.832    3564     6457  0.8582  0.1283  0.0135
+  tiered-ml                recall=0.9  10000      68      58  0.001056 0.0008871  0.001257    135.4      8.832    3706     6457  0.8582  0.1057 0.03605
+  tiered-ml               recall=0.95  10000      61      55 0.0009718 0.0008103  0.001165    151.9      8.832    3736     6579  0.8582 0.07555 0.06625
+  tiered-ml               recall=0.99  10000      56      53 0.0009129 0.0007568  0.001101    159.9      8.832    3746     6579  0.8582  0.0539  0.0879
+relay_stop_nconv1_num_sets300_p0.005_seed1_n3000_w4.csv: failures [151 123] of 3000  per cycle 0.0078 [0.00692, 0.00878]  mean 390.7 ms  p99 3764 ms
+relay_stop_nconv1_num_sets50_p0.005_seed1_n3000_w4.csv: failures [246 245] of 3000  per cycle 0.0142 [0.013, 0.0156]  mean 166.3 ms  p99 897 ms
+relay_stop_nconv2_num_sets300_p0.005_seed1_n3000_w4.csv: failures [127 124] of 3000  per cycle 0.00704 [0.00621, 0.00798]  mean 587.1 ms  p99 3969relay_stop_nconv2_num_sets50_p0.005_seed1_n3000_w4.csv: failures [255 240] of 3000  per cycle 0.0143 [0.0131, 0.0157]  mean 252.5 ms  p99 1191 ms
+relay_stop_nconv5_num_sets300_p0.005_seed1_n3000_w4.csv: failures [126 126] of 3000  per cycle 0.00719 [0.00636, 0.00814]  mean 991.9 ms  p99 5353 ms
+relay_stop_nconv5_num_sets50_p0.005_seed1_n3000_w4.csv: failures [233 232] of 3000  per cycle 0.0133 [0.0121, 0.0146]  mean 408.9 ms  p99 1322 ms
+tiered-all_default_p0.005_seed1_n3000_w4.csv: failures [124 128] of 3000  per cycle 0.0071 [0.00627, 0.00804]  mean 1089.6 ms  p99 7355 ms
+    decoder                    config  pairs  fail_X  fail_Z     rate  rate_lo  rate_hi  mean_ms  median_ms  p99_ms   p999_ms  stage1  stage2  stage3
+      relay stop_nconv=1,num_sets=300   3000     151     123 0.007798 0.006921  0.00878    390.7      38.95    3764      6212     NaN     NaN     NaN
+      relay  stop_nconv=1,num_sets=50   3000     246     245  0.01423  0.01301  0.01555    166.3      37.64   897.4      1250     NaN     NaN     NaN
+      relay stop_nconv=2,num_sets=300   3000     127     124 0.007044 0.006215 0.007979    587.1         99    3969      7453     NaN     NaN     NaN
+      relay  stop_nconv=2,num_sets=50   3000     255     240  0.01433   0.0131  0.01566    252.5      102.8    1191      1407     NaN     NaN     NaN
+      relay stop_nconv=5,num_sets=300   3000     126     126 0.007195 0.006355 0.008139    991.9      288.3    5353      7893     NaN     NaN     NaN
+      relay  stop_nconv=5,num_sets=50   3000     233     232  0.01329  0.01211  0.01457    408.9      288.7    1322      1353     NaN     NaN     NaN
+tiered-fast                 no router   3000     141     137 0.007919 0.007035 0.008909    379.6      51.64    3567      6753  0.6382  0.3618       0
+  tiered-ml                recall=0.8   3000     134     132 0.007526 0.006666 0.008491    895.1      51.64    7090 1.356e+04  0.6382   0.243  0.1188
+  tiered-ml                recall=0.9   3000     134     132 0.007526 0.006666 0.008491     1000      51.69    7173 1.356e+04  0.6382  0.1618     0.2
+  tiered-ml               recall=0.95   3000     129     129 0.007285  0.00644 0.008235     1054      59.29    7230 1.356e+04  0.6382 0.08833  0.2735
+  tiered-ml               recall=0.99   3000     127     129 0.007225 0.006383 0.008171     1075      144.8    7252 1.356e+04  0.6382 0.04383   0.318

@@ -9,7 +9,7 @@ Noise Learning with Near-Optimal Accuracy") from the paper's description, on CPU
 
 | p | BP-OSD | relay-BP | **TCBP-JOBS (ours)** |
 |---|---|---|---|
-| 0.003 | 4.9e-4 | 6.7e-5 | **8.3e-6** |
+| 0.003 (100k shots) | 4.9e-4 | 7.0e-5 | **3.8e-5** |
 | 0.004 | 4.5e-3 | 8.6e-4 | **3.4e-4** |
 | 0.005 | 2.4e-2 | 6.9e-3 | **3.0e-3** |
 

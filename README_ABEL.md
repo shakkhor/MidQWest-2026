@@ -50,11 +50,12 @@ Error Correction Decoding and Noise Learning with Near-Optimal Accuracy"* (Howe,
 
 ## Results (all comparisons on identical shots, exact McNemar tests)
 
-Logical error rate per cycle, 10,000 shots per basis, kit noise model, kit baseline settings:
+Logical error rate per cycle, 10,000 shots per basis (100,000 at p=0.003), kit noise model, kit baseline settings
+(BP-OSD at p=0.003 is from the 10,000-shot sweep):
 
 | p | BP-OSD | relay-BP | **Ours (TCBP-JOBS)** | vs relay-BP | McNemar p |
 |---|---|---|---|---|---|
-| 0.003 | 4.9e-4 | 6.7e-5 | **8.3e-6** | ~8× fewer errors | 0.039 |
+| 0.003 | 4.9e-4 | 7.0e-5 | **3.8e-5** | 1.9× fewer | 3.8e-6 |
 | 0.004 | 4.5e-3 | 8.6e-4 | **3.4e-4** | 2.5× fewer | 1.7e-13 |
 | 0.005 | 2.4e-2 | 6.9e-3 | **3.0e-3** | 2.3× fewer | 1.6e-91 |
 
@@ -74,7 +75,7 @@ The model is 529 weights (~4 KB). No GPU is needed.
 
 **Two-stage decoder** at p=0.004 (10,000 shots): threshold 15 → 42 failed pairs (vs 41 full search) at 26 ms
 mean. The full search runs on only 4% of shots. Stage 1 alone (22 ms) still beats relay-BP (75 vs 103 failed pairs).
-The threshold was chosen on these shots. It still needs to be checked on fresh shots.
+**Checked on fresh shots** (seed 21): p=0.004 42 vs 39 failed pairs (full search) at 2.2× less time; p=0.005 337 vs 330 at 2.2× less time.
 
 **Full DEM** (first 3,000 sweep shots, p=0.004): ours **3** failed pairs vs relay-BP on the same full DEM **17**
 (5.7×, McNemar p = 5e-4) and kit relay-BP **39**. This mode is slower (~0.6 s per pair on CPU).
@@ -102,7 +103,8 @@ Plots: `challenge-1-ml-decoder-kit/results/ler_and_latency.png`, `challenge-1-ml
   "beats their method, re-implemented, under loss", not their GPU numbers.
 - The kit benchmark (uniform circuit noise, per-basis decoding) is not the noise model used in NVIDIA's paper.
 - Our draws run on 12 CPU threads by default; single-thread timings are in `results/timing_1thread_p0.004.txt`.
-- At p=0.003 the counts are small (1 vs 8 failed pairs), so treat "~8×" as rough.
+- At p=0.003 we used 100,000 shots per basis (45 vs 84 failed pairs), as the kit README recommends. On the first
+  10,000 shots it was 1 vs 8; that "~8×" was luck from small numbers, and the solid figure is 1.9×.
 
 ## How to run it
 
@@ -144,7 +146,7 @@ totals are in `results/baseline_p*.txt`.
 
 ## Next steps
 1. ~~Idle-machine timing~~ (done).
-2. Check the two-stage threshold on fresh shots.
+2. ~~Check the two-stage threshold on fresh shots~~ (done: holds).
 3. ~~Run NVIDIA's real decoder on our shots~~ (done: identical accuracy, see top).
 4. Optional: leakage tracking with clifft (unheralded loss).
 5. Slides.

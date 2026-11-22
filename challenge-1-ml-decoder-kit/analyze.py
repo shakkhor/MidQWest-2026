@@ -72,9 +72,13 @@ def line(name, s):
 
 def main():
     rows = {}
-    ps = sorted({re.search(r"_p([\d.]+)\.npz", f)[1] for f in glob.glob(os.path.join(OUT, "tcbpjobs_p*.npz"))})
+    ps = sorted({m[1] for f in glob.glob(os.path.join(OUT, "tcbpjobs_p*.npz"))
+                 if (m := re.search(r"tcbpjobs_p([\d.]+?)(?:_100k)?\.npz$", os.path.basename(f)))}, key=float)
     for p in ps:
         tj_path, rl_path = os.path.join(OUT, f"tcbpjobs_p{p}.npz"), os.path.join(OUT, f"relay_p{p}.npz")
+        big_tj, big_rl = os.path.join(OUT, f"tcbpjobs_p{p}_100k.npz"), os.path.join(OUT, f"relay_p{p}_100k.npz")
+        if os.path.exists(big_tj) and os.path.exists(big_rl):      # prefer the 100,000-shot runs
+            tj_path, rl_path = big_tj, big_rl
         tj = load(tj_path)
         print(f"\n=== p = {p}, {int(tj['shots'])} shots per basis (failures [X Z], logical error rate per cycle)")
         b = bposd_from_txt(p)

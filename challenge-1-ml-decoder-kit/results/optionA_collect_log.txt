@@ -1,0 +1,6 @@
+hard_p0.003_seed1000_n10000_w10.csv: hard 708 of 20000, stage-2 wrong 7, 3a fixes 7 breaks 0, 3b fixes 2 breaks 0, mean t3a 224 ms t3b 83 ms
+hard_p0.004_seed1000_n10000_w10.csv: hard 2704 of 20000, stage-2 wrong 121, 3a fixes 58 breaks 24, 3b fixes 47 breaks 21, mean t3a 659 ms t3b 271 ms
+hard_p0.005_seed1000_n4000_w10.csv: hard 2865 of 8000, stage-2 wrong 362, 3a fixes 103 breaks 55, 3b fixes 63 breaks 51, mean t3a 1548 ms t3b 790 ms
+hard_p0.003_seed2000_n10000_w10.csv: hard 703 of 20000, stage-2 wrong 7, 3a fixes 5 breaks 3, 3b fixes 5 breaks 3, mean t3a 235 ms t3b 112 ms
+hard_p0.004_seed2000_n10000_w10.csv: hard 2730 of 20000, stage-2 wrong 141, 3a fixes 61 breaks 26, 3b fixes 35 breaks 20, mean t3a 671 ms t3b 269 ms
+hard_p0.005_seed2000_n4000_w10.csv: hard 2873 of 8000, stage-2 wrong 390, 3a fixes 115 breaks 50, 3b fixes 83 breaks 44, mean t3a 1222 ms t3b 611 ms

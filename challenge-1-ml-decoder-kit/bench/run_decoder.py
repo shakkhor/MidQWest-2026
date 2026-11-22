@@ -25,7 +25,7 @@ from circuit import GROSS_CIRCUITS, dem_matrices, load_circuit
 from decoders import bposd_decoder, relay_decoder
 
 LOG_DIR = Path(__file__).resolve().parent.parent / "logs"
-DECODERS = ["relay", "bposd", "tiered-fast", "tiered-ml"]
+DECODERS = ["relay", "bposd", "tiered-fast", "tiered-ml", "tiered-all"]
 
 
 def parse_config(text):
@@ -62,6 +62,48 @@ def decode_one(decoder, name, syndrome):
     return np.asarray(error, np.uint8), seconds, decoder.last_stage, decoder.last_iterations
 
 
+def _timed(fn, *args):
+    start = time.perf_counter()
+    out = fn(*args)
+    return out, time.perf_counter() - start
+
+
+def tiered_all_rows(H, L, priors, llr, det, obs, shots, router_path):
+    """Run every stage of the tiered decoder on every hard shot, timing each stage separately.
+
+    Any router threshold (and tiered-fast, an infinite threshold) can then be replayed from
+    this one log by bench.pareto. Stage 3 runs on every hard shot here, so its random state
+    differs from a real tiered-ml run; the outcomes are statistically equivalent.
+    """
+    from fast_decoder import Router, _relay, features
+    router = Router.load(router_path)
+    first_leg = _relay(H, priors, num_sets=0, stop_nconv=1)
+    first_solution, more = _relay(H, priors, stop_nconv=1), _relay(H, priors, stop_nconv=4)
+    wrong = lambda error, truth: bool(((L @ np.asarray(error, np.uint8)) % 2 != truth).any())
+    rows = []
+    for shot in shots:
+        syndrome, truth = det[shot], obs[shot]
+        r1, t1 = _timed(first_leg.decode_detailed, syndrome)
+        row = {"shot": shot, "t1": t1, "t2": 0.0, "t3": 0.0, "score": np.nan, "syndrome_weight": int(syndrome.sum()),
+               "iterations": r1.iterations}
+        if r1.success:
+            row |= {"stage": 1, "fail1": wrong(r1.decoding, truth)}
+            row |= {"fail2": row["fail1"], "fail3": row["fail1"]}
+        else:
+            r2, t2 = _timed(first_solution.decode_detailed, syndrome)
+            score, tf = _timed(router.score, features(syndrome, r2, llr))
+            mine = np.asarray(r2.decoding, bool)
+            other, t3 = _timed(more.decode, syndrome)
+            other = np.asarray(other, bool)
+            best = other if llr[other].sum() < llr[mine].sum() else mine
+            row |= {"stage": 2, "t2": t2 + tf, "t3": t3, "score": score, "iterations": r2.iterations,
+                    "fail1": wrong(r1.decoding, truth), "fail2": wrong(mine, truth), "fail3": wrong(best, truth)}
+        row["time_s"] = row["t1"] + row["t2"] + row["t3"]
+        row["fail"] = row["fail3"]
+        rows.append(row)
+    return rows
+
+
 def run_worker(job):
     """Per-shot rows of worker k: its X shots, then its Z shots."""
     name, config, router, p, seed, shots, k, workers = job
@@ -70,6 +112,10 @@ def run_worker(job):
         H, L, priors = dem_matrices(load_circuit(GROSS_CIRCUITS[basis], p), basis)
         llr = np.log((1 - priors) / priors)
         det, obs = load_shots(p, basis, seed, shots)
+        if name == "tiered-all":
+            part = tiered_all_rows(H, L, priors, llr, det, obs, range(k, len(det), workers), router)
+            rows += [row | {"basis": basis} for row in part]
+            continue
         decoder = make_decoder(name, H, priors, config, router)
         for shot in range(k, len(det), workers):
             error, seconds, stage, iterations = decode_one(decoder, name, det[shot])
@@ -109,8 +155,8 @@ def main():
     parser.add_argument("--workers", type=int, default=4)
     parser.add_argument("--out", help="default: logs/<decoder>_<config>_p<p>_seed<seed>_n<shots>_w<workers>.csv")
     args = parser.parse_args()
-    if args.decoder == "tiered-ml" and not args.router:
-        parser.error("tiered-ml needs --router")
+    if args.decoder in ("tiered-ml", "tiered-all") and not args.router:
+        parser.error(f"{args.decoder} needs --router")
     log = run(args.decoder, args.config, args.p, args.seed, args.shots, args.workers, args.router)
     out = Path(args.out) if args.out else log_path(args.decoder, args.config, args.p, args.seed, args.shots, args.workers)
     out.parent.mkdir(parents=True, exist_ok=True)

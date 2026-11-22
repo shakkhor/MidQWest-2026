@@ -31,8 +31,13 @@ def features(syndrome, result, llr):
 class Router:
     """Logistic regression on features(): probability that the stage-2 solution should not be trusted."""
 
-    def __init__(self, mean, scale, w, b, threshold):
+    def __init__(self, mean, scale, w, b, threshold, pos_scores=None):
         self.mean, self.scale, self.w, self.b, self.threshold = mean, scale, w, float(b), float(threshold)
+        self.pos_scores = pos_scores   # training scores of the positives, to set other recalls
+
+    def threshold_for_recall(self, recall):
+        """Score threshold that flags `recall` of the training positives."""
+        return float(np.quantile(self.pos_scores, 1 - recall))
 
     @classmethod
     def fit(cls, X, y, recall=0.95, steps=3000, lr=0.1, l2=1e-3):
@@ -48,18 +53,23 @@ class Router:
             b -= lr * g.sum()
         scores = _sigmoid(Z @ w + b)
         threshold = np.quantile(scores[y == 1], 1 - recall) if y.any() else 0.5
-        return cls(mean, scale, w, b, threshold)
+        return cls(mean, scale, w, b, threshold, scores[y == 1])
+
+    def score(self, x):
+        """Probability-like score that the stage-2 solution should not be trusted."""
+        return float(_sigmoid(((x - self.mean) / self.scale) @ self.w + self.b))
 
     def distrust(self, x):
-        return _sigmoid(((x - self.mean) / self.scale) @ self.w + self.b) >= self.threshold
+        return self.score(x) >= self.threshold
 
     def save(self, path):
-        np.savez(path, mean=self.mean, scale=self.scale, w=self.w, b=self.b, threshold=self.threshold)
+        extra = {} if self.pos_scores is None else {"pos_scores": self.pos_scores}
+        np.savez(path, mean=self.mean, scale=self.scale, w=self.w, b=self.b, threshold=self.threshold, **extra)
 
     @classmethod
     def load(cls, path):
         d = np.load(path)
-        return cls(d["mean"], d["scale"], d["w"], d["b"], d["threshold"])
+        return cls(d["mean"], d["scale"], d["w"], d["b"], d["threshold"], d["pos_scores"] if "pos_scores" in d else None)
 
 
 def _sigmoid(z):

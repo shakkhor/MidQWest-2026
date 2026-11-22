@@ -82,7 +82,17 @@ known gap; see Next steps.
 - tiered-fast is just relay-BP `stop_nconv=1` under another name.
 
 The cause is clear: escalated shots rerun relay-BP from scratch and pay more than a plain
-`stop_nconv=2` run. This is what Phase 2 fixes. p=0.005 results are still running.
+`stop_nconv=2` run.
+
+**Phase 1 is complete.** p=0.005 confirms the picture. The full analysis, with plots and an
+oracle-router bound, is in
+[`challenge-1-ml-decoder-kit/results/phase1_analysis.md`](challenge-1-ml-decoder-kit/results/phase1_analysis.md).
+In short:
+- a perfect router would beat every relay-BP setting by about 3×, so the router's selectivity
+  is the bottleneck;
+- relay-BP `stop_nconv=2` matches the default's accuracy at about half the time;
+- the team's TCBP-JOBS decoder (`develop/Abel`) beats even the oracle bound, so it should be
+  the headline.
 
 An earlier figure of "4× faster" was wrong. It compared against a baseline timing taken
 while other jobs were using the CPU. All numbers above come from clean, comparable runs.

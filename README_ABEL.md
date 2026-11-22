@@ -44,7 +44,7 @@ Error Correction Decoding and Noise Learning with Near-Optimal Accuracy"* (Howe,
 4. **Our additions:**
    - **Loss-aware decoding:** atom loss is modelled as heralded erasure. The herald flags become per-shot
      probabilities for BP, TCBP and JOBS.
-   - **Two-stage confidence decoder** (Litch's idea): a cheap first search. If it is confident, accept it;
+   - **Two-stage confidence decoder**: a cheap first search. If it is confident, accept it;
      otherwise run the full search. **Same accuracy, 2.3× faster.**
    - **Full-DEM mode:** decode all 1728 detectors jointly (X/Z correlations) for maximum accuracy.
 
@@ -153,5 +153,4 @@ totals are in `results/baseline_p*.txt`.
 - NVIDIA TCBP-JOBS (method we re-implemented): https://research.nvidia.com/publication/_tcbpjobs-gpu-accelerated-quantum-error-correction-decoding-and-noise-learning-near
 - CoDecoder (confidence routing, joint logical classes): arXiv:2610.28748
 - Evolving Decoding Algorithms for QEC (Gibran.AI): arXiv:2611.25880. Shows relay-BP beats their evolved decoders.
-- Two-stage confidence decoder idea: Litch
 - Relay-BP: arXiv:2506.01779. Gross code: Bravyi et al., Nature 627, 778.

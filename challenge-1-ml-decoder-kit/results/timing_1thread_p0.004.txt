@@ -1,0 +1,3 @@
+300 pairs at p=0.004 (seed 1), one decoder at a time on an idle machine, numba threads 1
+two-stage  mean    31.9 ms  median    13.1 ms  p90    30.5 ms  p99     418 ms  max     866 ms
+tcbp-jobs  mean   133.9 ms  median    76.4 ms  p90   323.6 ms  p99     796 ms  max    1262 ms

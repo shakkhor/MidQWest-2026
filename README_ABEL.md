@@ -38,12 +38,19 @@ Logical error rate per cycle, 10,000 shots per basis, kit noise model, kit basel
 | 0.004 | 4.5e-3 | 8.6e-4 | **3.4e-4** | 2.5× fewer | 1.7e-13 |
 | 0.005 | 2.4e-2 | 6.9e-3 | **3.0e-3** | 2.3× fewer | 1.6e-91 |
 
-**Speed** (mean ms per X+Z pair, measured during the sweep while other jobs were running; idle-machine
-numbers will be in `results/timing_*.txt`):
+**Speed**: idle machine (Apple M-series, 12 cores), one decoder at a time, 300 pairs per p, ms per X+Z pair,
+shown as mean / p99 (`results/timing_*.txt`, `python timing.py`):
 
-| p | BP-OSD | relay-BP | Ours | Ours, two-stage |
+| p | BP-OSD | relay-BP | Ours (TCBP-JOBS) | **Ours, two-stage** |
 |---|---|---|---|---|
-| 0.004 | 185 | 192 (p99 3,243) | 52 (p99 176) | **26 (p99 137)** |
+| 0.003 | 66 / 359 | 34 / 190 | 23 / 65 | **12.5 / 20** |
+| 0.004 | 147 / 452 | 120 / 1,404 | 42 / 180 | **18.5 / 98** |
+| 0.005 | 261 / 520 | 594 / 2,867 | 76 / 272 | **33 / 212** |
+
+Two-stage is **2.7–18× faster than relay-BP on average** and 9–14× faster at p99.
+**Resources:** the baselines use one CPU core. Ours on **one core** (`NUMBA_NUM_THREADS=1`, p=0.004):
+two-stage **31.9 ms** mean (3.8× faster than relay-BP on the same single core), full TCBP-JOBS 134 ms.
+The model is 529 weights (~4 KB). No GPU is needed.
 
 **Two-stage decoder** at p=0.004 (10,000 shots): threshold 15 → 42 failed pairs (vs 41 full search) at 26 ms
 mean. The full search runs on only 4% of shots. Stage 1 alone (22 ms) still beats relay-BP (75 vs 103 failed pairs).
@@ -74,7 +81,7 @@ Plots: `challenge-1-ml-decoder-kit/results/ler_and_latency.png`, `challenge-1-ml
 - This is **our re-implementation** of NVIDIA's method on CPU, not their CUDA-Q GPU code. "Beats NVIDIA" means
   "beats their method, re-implemented, under loss", not their GPU numbers.
 - The kit benchmark (uniform circuit noise, per-basis decoding) is not the noise model used in NVIDIA's paper.
-- Our draws run on 12 CPU threads. Single-thread timings are in `results/timing_1thread_*.txt` once that run finishes.
+- Our draws run on 12 CPU threads by default; single-thread timings are in `results/timing_1thread_p0.004.txt`.
 - At p=0.003 the counts are small (1 vs 8 failed pairs), so treat "~8×" as rough.
 
 ## How to run it
@@ -110,13 +117,13 @@ totals are in `results/baseline_p*.txt`.
 - [x] Comparison with BP-OSD and relay-BP on identical shots
 - [x] Sweep at p = 0.003, 0.004, 0.005
 - [x] Logical error rate + latency; plots
-- [~] Resource requirements: CPU threads, model size (529 weights); single-thread timing in progress
+- [x] Resource requirements: CPU cores (12 threads or 1), single-thread timing, 529-weight model, no GPU
 - [x] Code on GitHub (this branch)
 - [ ] Presentation / demo
 - Stretch goals done: confidence routing (two-stage), latency estimates, second noise channel (loss), full-DEM decoding
 
 ## Next steps
-1. Finish the idle-machine timing (running) and add those numbers.
+1. ~~Idle-machine timing~~ (done).
 2. Check the two-stage threshold on fresh shots.
 3. Optional: run NVIDIA's real decoder (CUDA-Q QEC 0.9.0) on a free GPU (Kaggle/Colab) on our exact shots.
 4. Optional: leakage tracking with clifft (unheralded loss).

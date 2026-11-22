@@ -1,14 +1,19 @@
 # Option B: the team's TCBP-JOBS decoder against relay-BP's whole trade-off curve
 
-The team's decoders (branch `develop/Abel`) were timed in our harness, unchanged, under exactly
-the rules used for relay-BP's curve:
+The team's decoders were timed in our harness, unchanged, under exactly the rules used for
+relay-BP's curve. **Code version:** branch `develop/Abel` at commit `07fb8d2`, with its committed
+model `tcbp_model.npz`, and two-stage τ = 15.
+
+Rules:
 - the same cached seed-1 shots: p=0.004 at 10,000 per basis, p=0.005 at the first 3,000;
 - Apple M4, 4 worker processes, **one thread per shot** (`NUMBA_NUM_THREADS=1`);
 - timing covers the `decode()` call only, after numba compilation;
 - 95% Wilson intervals, rates per cycle.
 
-Abel's Kaggle shots are the same seed-1 shots as ours. That was checked bit for bit, so NVIDIA's
-own CUDA-Q TCBP-JOBS (41 failed pairs at p=0.004) is on the same shots as well.
+Abel's Kaggle shot file (p=0.004, the only error rate run on Kaggle) is bit for bit identical
+to our cached seed-1 shots. So NVIDIA's own CUDA-Q TCBP-JOBS (41 failed pairs at p=0.004) is on
+the same shots. At p=0.005 both sides sample with the kit's `baseline.py` seeding, but there is
+no NVIDIA run at that error rate.
 
 ## Headline
 
@@ -47,7 +52,14 @@ error rates, single-threaded.**
 | relay `stop_nconv=1, num_sets=50` (fastest) | 474 | 1.42e-2 | 166 ms | 38 ms | 897 ms |
 
 - Against relay-BP's best setting: **2.3× fewer errors at 4.1× less mean time and 3.2× lower p99.**
-- Only relay-BP's fastest setting has a lower p99 (0.90 vs 1.25 s), and it makes 4.4× more errors.
+- Two relay-BP settings have a lower p99, both with `num_sets=50`:
+  - `stop_nconv=1`: 0.90 s, 474 failed pairs;
+  - `stop_nconv=2`: 1.19 s, 477 failed pairs.
+
+  Both make about 4.5× more errors.
+- Two-stage gives up a little accuracy against the full TCBP-JOBS search here: 107 vs 98 failed
+  pairs (3.0e-3 vs 2.8e-3, within the error bars), in exchange for 2.8× less mean time. Abel's
+  fresh-shot check shows the same small gap (337 vs 330). At p=0.004 the two are equal (42 vs 41).
 
 ## Consistency checks
 - Our runs reproduce Abel's own counts on these shots (two-stage 42, full 41 at p=0.004), and
@@ -77,9 +89,10 @@ error rates, single-threaded.**
   - relay `stop_nconv=2` matches the default's accuracy at half the cost;
   - `num_sets` must stay large.
 
-Reproduce (from the kit directory, with a checkout of `develop/Abel` as `ABEL_KIT`):
+Reproduce (from the kit directory, with a checkout of `develop/Abel` at `07fb8d2` as `ABEL_KIT`):
 
-    export ABEL_KIT=/path/to/abel-checkout/challenge-1-ml-decoder-kit
+    git worktree add --detach ../abel-07fb8d2 07fb8d2
+    export ABEL_KIT=$PWD/../abel-07fb8d2/challenge-1-ml-decoder-kit
     python -m bench.run_decoder --decoder abel-two-stage --p 0.004 --shots 10000 --workers 4
     python -m bench.run_decoder --decoder abel-tcbp-jobs --p 0.004 --shots 10000 --workers 4
     python -m bench.pareto --p 0.004

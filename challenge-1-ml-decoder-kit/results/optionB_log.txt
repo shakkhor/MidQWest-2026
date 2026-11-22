@@ -1,3 +1,4 @@
+# Abel decoders: develop/Abel at commit 07fb8d2 (tcbp_model.npz, two-stage tau=15), NUMBA_NUM_THREADS=1, 4 workers
 abel-two-stage_default_p0.004_seed1_n10000_w4.csv: failures [22 20] of 10000  per cycle 0.000351 [0.000259, 0.000474]  mean 34.6 ms  p99 445 ms
 abel-tcbp-jobs_default_p0.004_seed1_n10000_w4.csv: failures [22 19] of 10000  per cycle 0.000342 [0.000252, 0.000464]  mean 156.1 ms  p99 913 ms
        decoder                    config  pairs  fail_X  fail_Z      rate   rate_lo   rate_hi  mean_ms  median_ms  p99_ms  p999_ms  stage1  stage2  stage3

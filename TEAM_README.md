@@ -1,142 +1,107 @@
-# Team README: Challenge 1, learned per-shot compute for relay-BP
+# Team README: Challenge 1, ML-assisted decoding of the Gross code
 
-> **Latest (Option B):** Abel's two-stage TCBP-JOBS decoder was timed in this harness:
-> single thread, same shots as relay-BP's whole trade-off curve. It **beats every relay-BP
-> setting on accuracy and speed**:
-> - p=0.004: 3.5e-4 at 35 ms, vs. relay-BP's default 8.4e-4 at 212 ms;
-> - p=0.005: 3.0e-3 at 144 ms, vs. relay-BP's best 7.0e-3 at 587 ms.
->
-> See [`results/optionB_analysis.md`](challenge-1-ml-decoder-kit/results/optionB_analysis.md).
-> Our tiered relay-BP router (below, and
-> [`results/optionA_analysis.md`](challenge-1-ml-decoder-kit/results/optionA_analysis.md)) is
-> a supporting negative result.
+Status as of Sunday morning. Branch: `develop/abdullah`. This is the place to catch up: what we
+built, what we found, and what is left.
 
-Status as of Saturday evening. This is the place to catch up: what we built, what we
-found, and what comes next. Branch: `develop/abdullah`.
+## Headline
 
-## The idea in one paragraph
+**The team's two-stage TCBP-JOBS decoder (from `develop/Abel`) beats every relay-BP setting on
+accuracy and speed, at both error rates we timed, on one CPU thread:**
 
-Relay-BP is the strongest baseline in the kit, and it is slow mainly because it spends the
-same large effort on every shot: it keeps searching until it has 5 solutions. Most shots
-are easy. On 86% of shots at p=0.004, the first 80 BP iterations already converge, and that
-answer is essentially never wrong. **Our decoder spends little compute on easy shots and the
-full relay-BP search only on hard ones. A small learned model (the router) decides which
-shots are hard.** The claim we are testing is that this beats *every fixed relay-BP
-setting* on speed at equal accuracy, not just the default one.
+| p | decoder | failed pairs | per cycle [95% CI] | mean / pair | p99 / pair |
+|---|---|---|---|---|---|
+| 0.004 | **TCBP-JOBS two-stage** | **42** | **3.5e-4** [2.6, 4.7] | **35 ms** | **0.45 s** |
+| 0.004 | relay-BP default | 100 | 8.4e-4 [6.9, 10.2] | 212 ms | 3.6 s |
+| 0.004 | relay-BP, fastest setting | 219 | 1.8e-3 | 39 ms | 0.58 s |
+| 0.005 | **TCBP-JOBS two-stage** | **107** | **3.0e-3** [2.5, 3.6] | **144 ms** | 1.25 s |
+| 0.005 | relay-BP, best setting (`stop_nconv=2`) | 244 | 7.0e-3 [6.2, 8.0] | 587 ms | 4.0 s |
 
-## The decoder (`challenge-1-ml-decoder-kit/fast_decoder.py`)
+- All decoders ran on identical shots: p=0.004 at 10,000 per basis, p=0.005 at 3,000.
+- Same machine (Apple M4), 4 workers, one thread per shot, timing covers the `decode()` call only.
+- NVIDIA's own CUDA-Q TCBP-JOBS, run by Abel on Kaggle on the same p=0.004 shots, gets the same
+  41 failed pairs as our re-implementation.
+- Details and caveats:
+  [`results/optionB_analysis.md`](challenge-1-ml-decoder-kit/results/optionB_analysis.md).
+  Plots: `results/pareto_p0.004.png`, `results/pareto_p0.005.png`.
+
+## The two lines of work
+
+### 1. TCBP-JOBS (Abel, `develop/Abel`): the headline decoder
+- BP runs first.
+- A 529-weight neural net reads each fault's BP belief history.
+- A parallel OSD/beam search over 16 orderings returns the most likely correction and a
+  confidence score.
+- Two-stage version: accept a cheap search when it is confident, otherwise run the full search.
+- Also supports heralded qubit loss: 1.3–1.9× fewer errors than the method without loss
+  information.
+- See `README_ABEL.md` on that branch.
+
+### 2. Tiered relay-BP with a learned router (this branch): a supporting negative result
+
+Idea: spend little compute on easy shots, and the full relay-BP search only where a learned
+router says it is needed.
 
 ```
-syndrome
-  │
-  ▼  Stage 1: first relay-BP leg only (80 iterations of BP)      ~5 ms
-  │  converged? ── yes ──► done                                  (86% of shots at p=0.004)
-  ▼  no
-  Stage 2: relay-BP, stop at the first solution
-  │  router trusts it? ── yes ──► done
-  ▼  no
-  Stage 3: 4 more relay solutions; keep the most likely of all candidates
+Stage 1: first relay-BP leg (80 BP iterations)   converged? → done   (86% of shots at p=0.004)
+Stage 2: relay-BP, stop at the first solution    router trusts it? → done
+Stage 3: more relay-BP solutions, keep the most likely candidate
 ```
 
-**Router:** logistic regression on 5 features of the stage-2 solution:
-- syndrome weight;
-- iterations needed;
-- solution weight (how unlikely the error pattern is);
-- solution weight ÷ syndrome weight;
-- number of predicted errors.
+What we found:
+- **Phase 1:** relay-BP's own speed/accuracy curve at 6 settings. Our router lands on or behind
+  it. ([`phase1_analysis.md`](challenge-1-ml-decoder-kit/results/phase1_analysis.md))
+- **Option A:** router v2 (17 features, gradient boosting, label "stage 3 fixes this shot").
+  It picks useful escalations 3–4× better than chance, but the gain over relay-BP
+  `stop_nconv=2` is within noise. ([`optionA_analysis.md`](challenge-1-ml-decoder-kit/results/optionA_analysis.md))
+- **Even a perfect router** (7.0e-4 at 65 ms) stays behind TCBP-JOBS two-stage.
+- Findings worth keeping, no ML involved:
+  - relay-BP `stop_nconv=2` matches the default's accuracy at about half the time;
+  - cutting `num_sets` from 300 to 50 roughly doubles the error rate.
 
-**Label:** 1 when the first solution disagrees with full relay-BP on the logical outcome.
-Trained on separate seeds (1000+); the test seed is 1.
+**Why this work still matters for the presentation:** relay-BP's trade-off curve is what lets us
+say TCBP-JOBS beats *every* relay-BP setting, not just the default.
 
 ## Noise model
 
-The kit's model, unchanged: uniform circuit-level depolarizing noise with one strength p.
+The kit's model: uniform circuit-level depolarizing noise with one strength p.
 - Two-qubit depolarizing after every CX.
 - A flip after each reset and before each measurement.
 - Single-qubit depolarizing on idle data qubits.
 - 12 noisy cycles, then a noiseless final readout.
 
-**No qubit loss is modelled yet.** The challenge asks for it "where available". This is a
-known gap; see Next steps.
-
-## What we have done
-
-1. **Reproduced the baselines** at p=0.004, 10k shots per basis (`base-results.txt`):
-   relay-BP 7.6e-4 per cycle, BP-OSD 4.5e-3 per cycle. Both match the kit's reference.
-2. **Profiled relay-BP.** Most of its time on easy shots goes to collecting 5 solutions when
-   the first is already right. BP-OSD as a fallback is 3–4× less accurate, so we dropped it.
-3. **Built the tiered decoder and router** (`fast_decoder.py`, `train_router.py`).
-4. **Read the mentors' suggested papers** and wrote `PLAN.md` (v2): positioning against
-   Cascade, NVIDIA Ising-Decoding, and the hierarchical-decoding survey.
-5. **Built a clean benchmark harness** (`bench/`, Phase 0):
-   - shots are sampled once and cached, so every decoder sees identical shots;
-   - per-shot CSV logs;
-   - Wilson 95% intervals;
-   - **Re-running both baselines reproduces `base-results.txt` exactly** ([266 267] and
-     [51 40]).
-6. **Phase 1 (running):** relay-BP's own speed/accuracy curve vs. our decoder.
-
-## Results so far (p = 0.004, 10k shots per basis, identical shots, 4 workers on an M4)
-
-| decoder | per cycle [95% interval] | mean / pair | p99 / pair |
-|---|---|---|---|
-| relay-BP default (`stop_nconv=5`) | 8.4e-4 [6.9e-4, 1.0e-3] | 212 ms | 3.6 s |
-| relay-BP `stop_nconv=2` | 9.7e-4 [8.1e-4, 1.2e-3] | **103 ms** | 2.1 s |
-| relay-BP `stop_nconv=1` | 1.14e-3 [9.6e-4, 1.35e-3] | 58 ms | 1.2 s |
-| tiered-fast (no router) | 1.17e-3 [9.9e-4, 1.38e-3] | 59 ms | 1.0 s |
-| tiered-ml, router at 95% recall | 9.7e-4 [8.1e-4, 1.2e-3] | 152 ms | 3.7 s |
-| tiered-ml, router at 99% recall | 9.1e-4 [7.6e-4, 1.1e-3] | 160 ms | 3.7 s |
-| BP-OSD | 4.5e-3 | 203 ms | 0.6 s |
-
-**Honest reading: at p=0.004 the claim currently fails.**
-- tiered-ml matches relay-BP `stop_nconv=2` on accuracy but is about 50% slower.
-- tiered-fast is just relay-BP `stop_nconv=1` under another name.
-
-The cause is clear: escalated shots rerun relay-BP from scratch and pay more than a plain
-`stop_nconv=2` run.
-
-**Phase 1 is complete.** p=0.005 confirms the picture. The full analysis, with plots and an
-oracle-router bound, is in
-[`challenge-1-ml-decoder-kit/results/phase1_analysis.md`](challenge-1-ml-decoder-kit/results/phase1_analysis.md).
-In short:
-- a perfect router would beat every relay-BP setting by about 3×, so the router's selectivity
-  is the bottleneck;
-- relay-BP `stop_nconv=2` matches the default's accuracy at about half the time;
-- the team's TCBP-JOBS decoder (`develop/Abel`) beats even the oracle bound, so it should be
-  the headline.
-
-An earlier figure of "4× faster" was wrong. It compared against a baseline timing taken
-while other jobs were using the CPU. All numbers above come from clean, comparable runs.
-
-## Plan (details in `challenge-1-ml-decoder-kit/PLAN.md`)
-
-| phase | what | when |
-|---|---|---|
-| 0 | Benchmark harness, exact baseline reproduction | done |
-| 1 | relay-BP trade-off curve vs. tiered decoder, p=0.004 and 0.005 | running, about 1 h left |
-| 2 | **Router v2 and stage-3 fix:** cheaper escalation (1 extra solution instead of 4), posterior-based features, gradient-boosted model, calibration, tail cap | overnight |
-| — | Final held-out runs at p = 0.003, 0.004, 0.005 (big accuracy runs on Babbage) | overnight |
-| 3 | Figures: trade-off curves, stage fractions, router reliability, latency CDF, backlog | Sunday 06:00–09:00 |
-| 4 | Write-up and demo | Sunday 09:00–12:00 |
-
-How we report (from the Tang et al. survey):
-- compare at matched accuracy;
-- report how many shots take the expensive path;
-- give latency as a distribution, not just the mean;
-- state exactly what the timings cover (CPU, single thread, the `decode()` call only).
+Qubit loss is modelled in Abel's branch as heralded erasure (Stim `HERALDED_ERASE`).
 
 ## Positioning against the mentors' papers
 
 - **Cascade** (Gu et al., arXiv:2604.08358): a neural decoder about 17× more accurate than
-  relay-BP on the Gross code, but it takes about 100 H200 GPU-hours to train. We don't compete
-  on accuracy.
-- **NVIDIA Ising-Decoding** (arXiv:2604.12841): a learned predecoder, about 3× end-to-end
-  speedup, but **surface and color codes only**, so there is no Gross-code number to beat. Our
-  story is the analogous result for qLDPC codes, on CPU.
-- **Hierarchical decoding survey** (Tang et al., arXiv:2611.16271): in its terms our decoder
-  is a "predecoding cascade with confidence gating". It defines how we evaluate.
-- Closest prior work: Chongder, arXiv:2607.05814 (confidence-gated decoding, surface code).
-  Lazy decoder: Delfosse, arXiv:2001.11427.
+  relay-BP at p=0.1%, but about 100 H200 GPU-hours to train. We don't compete on accuracy.
+- **NVIDIA Ising-Decoding** (arXiv:2604.12841): surface and color codes only, so there is no
+  Gross-code number to beat.
+- **NVIDIA TCBP-JOBS:** re-implemented on CPU, and validated against NVIDIA's code on our shots.
+- **Hierarchical decoding survey** (Tang et al., arXiv:2611.16271): sets how we evaluate.
+  Compare at matched accuracy, report how often the expensive path runs, give latency as a
+  distribution, and state exactly what the timings cover.
+- Closest prior work to the router idea: Chongder, arXiv:2607.05814. Lazy decoder: Delfosse,
+  arXiv:2001.11427.
+
+## Caveats to say out loud
+- CPU timings of the `decode()` call, not hardware latency.
+- NVIDIA's GPU timing on Kaggle ran with `bp_batch_size=1` (one shot at a time). It does not
+  show what NVIDIA's decoder can do.
+- p=0.003 is not on the timed trade-off plots. Abel's 100k-shot run there gives 1.9× fewer
+  errors than relay-BP.
+
+## Plan to the deadline (about 13:00 Sunday)
+
+| step | status |
+|---|---|
+| Phase 0: benchmark harness, exact baseline reproduction | done |
+| Phase 1: relay-BP trade-off curve vs. tiered decoder | done (negative result) |
+| Option A: router v2 | done (within noise) |
+| Option B: TCBP-JOBS in the shared harness | done (headline) |
+| Phase 3: figures | trade-off plots done; latency CDF and stage-fraction plots optional |
+| Phase 4: write-up and slides | next |
+| Optional: 100k shots at p=0.003 on Babbage (`bench/accuracy_runs.sh`) | not run |
 
 ## How to run it
 
@@ -151,30 +116,26 @@ python -m bench.run_decoder --decoder relay --p 0.004 --shots 1000   # per-shot 
 python -m bench.pareto --p 0.004                                     # table and plot in results/
 ```
 
-- **Timed runs:** Abdullah's Mac only, with 4 workers and nothing else running. Timings from
-  different machines must not be mixed.
-- **Large accuracy runs:** Babbage, via `bench/accuracy_runs.sh`. It uses seed 3 and all cores.
+To time Abel's decoders, check out `develop/Abel` at `07fb8d2`, set `ABEL_KIT` to its
+`challenge-1-ml-decoder-kit` directory, and use `--decoder abel-two-stage` or
+`--decoder abel-tcbp-jobs` (needs `numba` and `torch`). See `results/optionB_analysis.md`.
+
+- **Timed runs:** one machine only, 4 workers, nothing else running.
+- **Large accuracy runs:** a many-core machine (Babbage), via `bench/accuracy_runs.sh`.
 
 ## Files
 
 | file | what |
 |---|---|
-| `challenge-1-ml-decoder-kit/fast_decoder.py` | `TieredDecoder`, `Router`, `features` |
-| `challenge-1-ml-decoder-kit/train_router.py` | trains `router.npz` |
-| `challenge-1-ml-decoder-kit/bench/` | harness: `make_shots`, `run_decoder`, `stats`, `pareto`, `phase1.sh`, `accuracy_runs.sh`, `setup_remote.sh`, tests |
-| `challenge-1-ml-decoder-kit/results/` | committed result summaries |
-| `challenge-1-ml-decoder-kit/PLAN.md` | the current plan (v2) |
-| `challenge-1-ml-decoder-kit/TIERED_DECODER.md` | the first plan (v1) |
-| `base-results.txt` | our baseline run |
+| `challenge-1-ml-decoder-kit/bench/` | harness: `make_shots`, `run_decoder` (also times Abel's decoders), `stats`, `pareto`, `collect_hard`, `router_v2`, scripts, tests |
+| `challenge-1-ml-decoder-kit/results/` | write-ups (`phase0_acceptance`, `phase1_analysis`, `optionA_analysis`, `optionB_analysis`), CSVs, plots |
+| `challenge-1-ml-decoder-kit/fast_decoder.py`, `train_router.py` | tiered relay-BP decoder and router v1 |
+| `challenge-1-ml-decoder-kit/PLAN.md` | plan v2 (`TIERED_DECODER.md`: plan v1) |
+| `base-results.txt` | first baseline run (timing taken with other jobs running; failure counts are valid) |
 
 ## Where teammates can help
-
-1. **Qubit loss.** Add heralded loss as erasure: a known location whose error priors are raised
-   for that shot. This is the biggest gap against the challenge text. It is self-contained:
-   a new circuit/noise variant plus a prior update in stage 1.
-2. **Babbage accuracy runs:** `bash bench/accuracy_runs.sh` (100k shots at p=0.003).
-3. **Slides and demo skeleton** (Phase 4). The story and the positioning above are stable
-   even though the numbers will change.
-4. **Literature check:** read Chongder (arXiv:2607.05814) and confirm how it differs from ours.
+1. **Slides and demo:** the headline table and the two trade-off plots are final.
+2. **Babbage:** `bash bench/accuracy_runs.sh`, to add a p=0.003 point at 100k shots.
+3. **Literature check:** read Chongder (arXiv:2607.05814) and confirm how it differs.
 
 Please work on your own branch (e.g. `develop/<name>`) and open a PR into `develop/abdullah`.
